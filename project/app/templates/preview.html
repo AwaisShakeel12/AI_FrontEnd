@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Code Editor & Preview</title>
+
+    <!-- Include CodeMirror CSS and JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            overflow: hidden;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #50fa7b;
+            text-shadow: 0 0 10px #50fa7b, 0 0 20px #50fa7b;
+            animation: glowing 3s infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes glowing {
+            0% { text-shadow: 0 0 10px #50fa7b, 0 0 20px #50fa7b; }
+            50% { text-shadow: 0 0 15px #50fa7b, 0 0 30px #50fa7b; }
+            100% { text-shadow: 0 0 10px #50fa7b, 0 0 20px #50fa7b; }
+        }
+
+        .left-panel {
+            width: 35%;
+            background-color: #282c34;
+            color: #f8f8f2;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            border-right: 2px solid #444;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        .form-container textarea {
+            width: 100%;
+            height: 60px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            resize: none;
+            outline: none;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #3a4250;
+            background-color: whitesmoke;
+            color:black;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .form-container textarea:focus {
+            box-shadow: 0 0 10px #6272a4, 0 0 20px #6272a4;
+            transform: scale(1.05);
+        }
+
+        .form-container button {
+            padding: 10px 15px;
+            background-color: #ff79c6;
+            background-color:  #50fa7b;
+            color: #282c34;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .form-container button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.951);
+        }
+
+        .code-editor-container {
+            flex-grow: 1;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #3a3f50;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            overflow: auto;
+            position: relative;
+        }
+
+        .code-editor-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .code-editor-container::-webkit-scrollbar-thumb {
+            background: #6272a4;
+            border-radius: 10px;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #50fa7b;
+            
+            color: #282c34;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .copy-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(80, 250, 123, 0.5);
+        }
+
+        .right-panel {
+            width: 65%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background:rgb(127, 255, 253);
+            background:rgb(127, 255, 253);
+            background-color: aquamarine;
+
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(135deg, rgb(255, 255, 255) 25%, transparent 25%, transparent 50%, rgb(255, 255, 255) 50%,  rgb(255, 255, 255) 75%, transparent 75%, transparent);
+            background-size: 60px 60px;
+            animation: gradient-move 10s linear infinite;
+        }
+
+        @keyframes gradient-move {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 60px 60px;
+            }
+        }
+
+        .iframe-container {
+            width: 90%;
+            height: 90%;
+            border-radius: 10px;
+          
+            overflow-y:auto;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: pop-in 1s ease;
+        }
+
+        @keyframes pop-in {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-panel">
+        <div class="title">Code & Preview Editor</div>
+        <div class="form-container">
+            <form action="" method="post">
+                {% csrf_token %}
+                <textarea name="query" placeholder="Enter your design name..."></textarea>
+                <button type="submit">Execute</button>
+            </form>
+        </div>
+        <div class="code-editor-container">
+            
+            <textarea id="code-editor" style="display: none;">{{ response }}</textarea>
+            <button class="copy-button" onclick="copyToClipboard()">Copy Code</button>
+        </div>
+    </div>
+    <div class="right-panel">
+        <div class="iframe-container">
+            {% if response %}
+            <iframe srcdoc="{{ response }}" name="preview">Preview is not supported.</iframe>
+         
+            {% else %}
+            <iframe srcdoc="{{ default }}" name="preview">Preview is not supported.</iframe>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize CodeMirror with Dracula theme
+        const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+            lineNumbers: true,
+            mode: 'htmlmixed',
+            theme: 'dracula',
+            indentWithTabs: true,
+            smartIndent: true,
+            lineWrapping: true,
+        });
+
+        // Adjust editor to fill the left panel
+        editor.setSize("100%", "100%");
+
+        // Copy code to clipboard function
+        function copyToClipboard() {
+            const code = editor.getValue();
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Continuous animation for the title
+        document.querySelector('.title').addEventListener('mouseenter', () => {
+            document.querySelector('.title').style.animation = 'none';
+        });
+
+        document.querySelector('.title').addEventListener('mouseleave', () => {
+            document.querySelector('.title').style.animation = 'glowing 3s infinite';
+        });
+    </script>
+</body>
+</html>
